@@ -3,104 +3,138 @@ import 'package:caretutors_notes_app/features/home/controllers/notes_controller.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class AddNotesScreen extends StatelessWidget {
-  const AddNotesScreen({super.key});
+class AddNotesScreen extends StatefulWidget {
+  final bool isEditing;
+  final int? noteIndex;
+  final String? initialTitle;
+  final String? initialContent;
+
+  const AddNotesScreen({
+    Key? key,
+    this.isEditing = false,
+    this.noteIndex,
+    this.initialTitle,
+    this.initialContent,
+  }) : super(key: key);
+
+  @override
+  State<AddNotesScreen> createState() => _AddNotesScreenState();
+}
+
+class _AddNotesScreenState extends State<AddNotesScreen> {
+  final NotesController notesController = Get.find<NotesController>();
+  late TextEditingController titleController;
+  late TextEditingController contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.initialTitle ?? '');
+    contentController = TextEditingController(text: widget.initialContent ?? '');
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    contentController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final NotesController notesController = Get.find<NotesController>();
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    final TextEditingController titleTEController = TextEditingController();
-    final TextEditingController descriptionTEController = TextEditingController();
-
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Add new note',
-          style: textTheme.titleLarge?.copyWith(
-            fontSize: 22,
+          widget.isEditing ? 'Edit Note' : 'Add Note',
+          style: TextStyle(
+            fontSize: 18,
             fontWeight: FontWeight.w500,
             color: AppColors.themeColor,
           ),
         ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: titleTEController,
-                  decoration: InputDecoration(
-                    hintText: 'Title',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value?.trim().isEmpty ?? true) {
-                      return 'Enter a value';
-                    }
-                    return null;
-                  },
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: descriptionTEController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Description',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  validator: (String? value) {
-                    if (value?.trim().isEmpty ?? true) {
-                      return 'Enter a value';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 18),
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (formKey.currentState?.validate() ?? false) {
-                        final note = {
-                          'title': titleTEController.text,
-                          'content': descriptionTEController.text,
-                        };
-                        notesController.addNote(note);
-                        Get.back();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.themeColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_downward_sharp,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: contentController,
+              decoration: InputDecoration(
+                labelText: 'Content',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignLabelWithHint: true,
+              ),
+              maxLines: 5,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (titleController.text.trim().isEmpty ||
+                      contentController.text.trim().isEmpty) {
+                    Get.snackbar(
+                      'Error',
+                      'Please fill in all fields',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                    return;
+                  }
+
+                  if (widget.isEditing && widget.noteIndex != null) {
+                    notesController.updateNote(
+                      widget.noteIndex!,
+                      {
+                        'title': titleController.text,
+                        'content': contentController.text,
+                      },
+                    );
+                  } else {
+                    notesController.addNote(
+                      {
+                        'title': titleController.text,
+                        'content': contentController.text,
+                      },
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.themeColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  widget.isEditing ? 'Update Note' : 'Save Note',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

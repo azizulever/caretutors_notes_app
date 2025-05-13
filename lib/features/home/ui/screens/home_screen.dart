@@ -54,8 +54,14 @@ class HomeScreen extends StatelessWidget {
                                 color: AppColors.themeColor,
                               ),
                               onPressed: () {
-                                // TODO: Implement edit functionality using GetX
-                                print('Edit note at index $index');
+                                Get.to(
+                                  () => AddNotesScreen(
+                                    isEditing: true,
+                                    noteIndex: index,
+                                    initialTitle: note['title'],
+                                    initialContent: note['content'],
+                                  ),
+                                );
                               },
                             ),
                             IconButton(
