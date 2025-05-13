@@ -10,18 +10,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, String>> notes = [
-    {
-      'title': 'Flutter Basics',
-      'content': 'Introduction to widgets and layout',
-    },
-    {'title': 'State Management', 'content': 'Provider, Bloc, and setState'},
-    {
-      'title': 'Firebase Auth',
-      'content':
-          'Email/password login with Firebasesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-    },
-  ];
+  final List<Map<String, String>> notes = [];
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 50,
         width: 350,
         child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final newNote = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AddNotesScreen()),
             );
+
+            if (newNote != null && mounted) {
+              setState(() {
+                notes.add(Map<String, String>.from(newNote));
+              });
+            }
           },
           child: Text('Add Note', style: TextStyle(color: Colors.white)),
           backgroundColor: AppColors.themeColor,
