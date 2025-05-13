@@ -1,20 +1,23 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
-import 'package:caretutors_notes_app/features/auth/ui/screens/sign_up_screen.dart';
-import 'package:caretutors_notes_app/features/home/ui/screens/home_screen.dart';
+import 'package:caretutors_notes_app/features/auth/ui/screens/sign_in_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController firstNameTEController = TextEditingController();
+  final TextEditingController lastNameTEController = TextEditingController();
   final TextEditingController emailTEController = TextEditingController();
   final TextEditingController passwordTEController = TextEditingController();
+  final TextEditingController confirmPasswordTEController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,7 @@ class _SignInScreenState extends State<SignInScreen> {
             children: [
               const SizedBox(height: 90),
               Text(
-                'Login',
+                'Registration',
                 style: textTheme.titleMedium?.copyWith(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
@@ -40,6 +43,46 @@ class _SignInScreenState extends State<SignInScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
+                    TextFormField(
+                      controller: firstNameTEController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        hintText: 'First name',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter your first name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: lastNameTEController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        hintText: 'Last name',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter your last name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 8),
                     TextFormField(
                       controller: emailTEController,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -60,13 +103,13 @@ class _SignInScreenState extends State<SignInScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     TextFormField(
                       controller: passwordTEController,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       obscureText: true,
                       decoration: InputDecoration(
-                        hintText: 'Enter your password',
+                        hintText: 'Password',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -84,7 +127,34 @@ class _SignInScreenState extends State<SignInScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: confirmPasswordTEController,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Confirm password',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (String? value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Enter your password';
+                        }
+                        if (value!.length <= 6) {
+                          return 'Enter a password which is more than 5 characters';
+                        }
+                        if (value != passwordTEController.text) {
+                          return 'Password do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
                       height: 36,
@@ -94,7 +164,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomeScreen(),
+                                builder: (context) => const SignInScreen(),
                               ),
                             );
                           }
@@ -115,7 +185,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     SizedBox(height: 12),
                     RichText(
                       text: TextSpan(
-                        text: "Don't have an Account? ",
+                        text: "Already have an Account? ",
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w600,
@@ -124,7 +194,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         children: [
                           TextSpan(
-                            text: "Sign Up",
+                            text: "Sign In",
                             style: const TextStyle(color: AppColors.themeColor),
                             recognizer:
                                 TapGestureRecognizer()..onTap = _onTapSignUp,
@@ -145,7 +215,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void _onTapSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+      MaterialPageRoute(builder: (context) => const SignInScreen()),
     );
   }
 }
