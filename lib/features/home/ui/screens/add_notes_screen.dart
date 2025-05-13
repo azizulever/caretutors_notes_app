@@ -1,20 +1,18 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
+import 'package:caretutors_notes_app/features/home/controllers/notes_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class AddNotesScreen extends StatefulWidget {
+class AddNotesScreen extends StatelessWidget {
   const AddNotesScreen({super.key});
 
   @override
-  State<AddNotesScreen> createState() => _AddNotesScreenState();
-}
-
-class _AddNotesScreenState extends State<AddNotesScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleTEController = TextEditingController();
-  final TextEditingController _descriptionTEController =
-      TextEditingController();
-  @override
   Widget build(BuildContext context) {
+    final NotesController notesController = Get.find<NotesController>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final TextEditingController titleTEController = TextEditingController();
+    final TextEditingController descriptionTEController = TextEditingController();
+
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
@@ -31,13 +29,12 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // const SizedBox(height: 42),
                 TextFormField(
-                  controller: _titleTEController,
+                  controller: titleTEController,
                   decoration: InputDecoration(
                     hintText: 'Title',
                     filled: true,
@@ -56,7 +53,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _descriptionTEController,
+                  controller: descriptionTEController,
                   maxLines: 5,
                   decoration: InputDecoration(
                     hintText: 'Description',
@@ -80,12 +77,13 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                   height: 36,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
+                      if (formKey.currentState?.validate() ?? false) {
                         final note = {
-                          'title': _titleTEController.text,
-                          'content': _descriptionTEController.text,
+                          'title': titleTEController.text,
+                          'content': descriptionTEController.text,
                         };
-                        Navigator.pop(context, note);
+                        notesController.addNote(note);
+                        Get.back();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -98,7 +96,6 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                       Icons.arrow_downward_sharp,
                       color: Colors.white,
                     ),
-                    // child: Text('SignIn'),
                   ),
                 ),
               ],

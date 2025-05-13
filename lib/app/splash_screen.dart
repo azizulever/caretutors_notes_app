@@ -1,6 +1,8 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
+import 'package:caretutors_notes_app/features/home/ui/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,6 +12,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      Get.off(() => const HomeScreen());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
