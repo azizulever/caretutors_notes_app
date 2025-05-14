@@ -1,8 +1,11 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
+import 'package:caretutors_notes_app/app/routes/app_routes.dart';
+import 'package:caretutors_notes_app/features/auth/controllers/auth_controller.dart';
 import 'package:caretutors_notes_app/features/auth/ui/screens/sign_up_screen.dart';
-import 'package:caretutors_notes_app/features/home/ui/screens/home_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -15,6 +18,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController emailTEController = TextEditingController();
   final TextEditingController passwordTEController = TextEditingController();
+  
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
@@ -85,33 +90,34 @@ class _SignInScreenState extends State<SignInScreen> {
                       },
                     ),
                     SizedBox(height: 12),
-                    SizedBox(
+                    Obx(() => SizedBox(
                       width: double.infinity,
                       height: 36,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomeScreen(),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _authController.isLoading.value
+                            ? null
+                            : _handleSignIn,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.themeColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
-                        // child: Text('SignIn'),
+                        child: _authController.isLoading.value
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                              ),
                       ),
-                    ),
+                    )),
                     SizedBox(height: 12),
                     RichText(
                       text: TextSpan(
@@ -142,10 +148,31 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
+  Future<void> _handleSignIn() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final String? error = await _authController.signIn(
+        email: emailTEController.text.trim(),
+        password: passwordTEController.text.trim(),
+      );
+
+      if (error != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          context.go(AppRoutes.home);
+        }
+      }
+    }
+  }
+
   void _onTapSignUp() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SignUpScreen()),
-    );
+    context.go(AppRoutes.signUp);
   }
 }

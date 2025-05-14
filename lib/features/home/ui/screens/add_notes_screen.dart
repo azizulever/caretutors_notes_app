@@ -24,13 +24,14 @@ class AddNotesScreen extends StatefulWidget {
 }
 
 class _AddNotesScreenState extends State<AddNotesScreen> {
-  final NotesController notesController = Get.find<NotesController>();
+  late NotesController notesController;
   late TextEditingController titleController;
   late TextEditingController contentController;
 
   @override
   void initState() {
     super.initState();
+    notesController = Get.find<NotesController>(tag: 'notesController');
     titleController = TextEditingController(text: widget.initialTitle ?? '');
     contentController = TextEditingController(text: widget.initialContent ?? '');
   }

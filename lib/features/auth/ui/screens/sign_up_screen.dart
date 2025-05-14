@@ -1,7 +1,11 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
+import 'package:caretutors_notes_app/app/routes/app_routes.dart';
+import 'package:caretutors_notes_app/features/auth/controllers/auth_controller.dart';
 import 'package:caretutors_notes_app/features/auth/ui/screens/sign_in_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -18,6 +22,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController passwordTEController = TextEditingController();
   final TextEditingController confirmPasswordTEController =
       TextEditingController();
+
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -155,33 +161,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 36,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignInScreen(),
+                    Obx(() => SizedBox(
+                          width: double.infinity,
+                          height: 36,
+                          child: ElevatedButton(
+                            onPressed: _authController.isLoading.value
+                                ? null
+                                : _handleSignUp,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.themeColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.themeColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: _authController.isLoading.value
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  ),
                           ),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                        ),
-                        // child: Text('SignIn'),
-                      ),
-                    ),
+                        )),
                     SizedBox(height: 12),
                     RichText(
                       text: TextSpan(
@@ -212,10 +219,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  Future<void> _handleSignUp() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final String? error = await _authController.signUp(
+        email: emailTEController.text.trim(),
+        password: passwordTEController.text.trim(),
+        firstName: firstNameTEController.text.trim(),
+        lastName: lastNameTEController.text.trim(),
+      );
+
+      if (error != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          context.go(AppRoutes.signIn);
+        }
+      }
+    }
+  }
+
   void _onTapSignUp() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SignInScreen()),
-    );
+    context.go(AppRoutes.signIn);
   }
 }
