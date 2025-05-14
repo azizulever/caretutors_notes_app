@@ -1,7 +1,9 @@
 import 'package:caretutors_notes_app/app/app_colors.dart';
+import 'package:caretutors_notes_app/app/routes/app_routes.dart';
 import 'package:caretutors_notes_app/features/home/controllers/notes_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 class AddNotesScreen extends StatefulWidget {
   final bool isEditing;
@@ -55,7 +57,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
+          onPressed: () => context.go(AppRoutes.home),
         ),
       ),
       body: Padding(
@@ -91,12 +93,11 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                 onPressed: () {
                   if (titleController.text.trim().isEmpty ||
                       contentController.text.trim().isEmpty) {
-                    Get.snackbar(
-                      'Error',
-                      'Please fill in all fields',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red,
-                      colorText: Colors.white,
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please fill in all fields'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                     return;
                   }
@@ -117,6 +118,8 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                       },
                     );
                   }
+                  
+                  context.go(AppRoutes.home);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.themeColor,
